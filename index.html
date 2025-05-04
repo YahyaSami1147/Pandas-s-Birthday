@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Happy Birthday Countdown</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -16,72 +18,141 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: linear-gradient(135deg, #1a1a3d, #2e2e5c);
-      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #ff3e6c, #00d4d4, #ffd700, #ff69b4);
+      background-size: 600%;
+      font-family: 'Montserrat', sans-serif;
       color: #fff;
       text-align: center;
       overflow: hidden;
+      animation: gradientShift 8s ease infinite;
     }
     canvas {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 1;
+      z-index: 0;
     }
     #content {
       position: relative;
-      z-index: 2;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      z-index: 1;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
       max-width: 90%;
+      animation: fadeIn 1.2s ease-in;
     }
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-      animation: glow 2s ease-in-out infinite alternate;
+      font-family: 'Great+Vibes', cursive;
+      font-size: 4rem;
+      margin-bottom: 15px;
+      text-shadow: 0 0 20px #ffd700, 0 0 30px #ff3e6c;
+      animation: sparkle 1.8s ease-in-out infinite alternate;
     }
     #timer {
-      font-size: 1.8rem;
-      font-weight: bold;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
       margin-bottom: 20px;
     }
     #message {
       display: none;
-      font-size: 2.5rem;
-      font-weight: bold;
-      animation: fadeIn 2s ease-in;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1.3;
+      animation: bounce 1.8s ease-in-out;
     }
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #fff, 0 0 20px #ff69b4; }
-      to { text-shadow: 0 0 20px #fff, 0 0 30px #00ffff; }
+    #subtext {
+      font-family: 'Great+Vibes', cursive;
+      font-size: 1.8rem;
+      margin-top: 10px;
+      opacity: 0;
+      animation: fadeInSubtext 2s ease-in forwards;
+      animation-delay: 0.5s;
+    }
+    #playButton {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: linear-gradient(45deg, #ff3e6c, #ff69b4);
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-family: 'Montserrat', sans-serif;
+      border-radius: 50px;
+      cursor: pointer;
+      margin: 25px auto;
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    #playButton:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 25px #00d4d4;
+    }
+    #playButton.playing {
+      background: linear-gradient(45deg, #00d4d4, #ffd700);
+      animation: none;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes sparkle {
+      from { text-shadow: 0 0 20px #ffd700, 0 0 30px #ff3e6c; }
+      to { text-shadow: 0 0 30px #ffd700, 0 0 40px #00d4d4; }
+    }
+    @keyframes bounce {
+      0% { transform: translateY(30px); opacity: 0; }
+      50% { transform: translateY(-15px); opacity: 1; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeInSubtext {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.5); }
-      to { opacity: 1; transform: scale(1); }
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     @media (max-width: 600px) {
-      h1 { font-size: 1.8rem; }
-      #timer { font-size: 1.2rem; }
-      #message { font-size: 1.8rem; }
+      h1 { font-size: 2.5rem; }
+      #timer { font-size: 1.5rem; }
+      #message { font-size: 2rem; }
+      #subtext { font-size: 1.3rem; }
+      #playButton { font-size: 1rem; padding: 12px 25px; }
+      #content { padding: 20px; }
     }
     @media (min-width: 1200px) {
-      h1 { font-size: 3.5rem; }
+      h1 { font-size: 5rem; }
       #timer { font-size: 2.5rem; }
-      #message { font-size: 3.5rem; }
+      #message { font-size: 3.8rem; }
+      #subtext { font-size: 2.2rem; }
     }
   </style>
 </head>
 <body>
   <div id="content">
-    <h1>Counting Down to Your Special Day!</h1>
+    <h1 id="header">Counting Down to Your Special Day!</h1>
     <div id="timer"></div>
-    <div id="message">Happy Birthday, My Love! 🎉<br>You make every day brighter!</div>
+    <div id="message">Happy Birthday, My Love! 🎂<br>You’re my everything!</div>
+    <div id="subtext">You are light of life</div>
+    <button id="playButton"><span>❤️</span> Play Our Song</button>
   </div>
+  <audio id="backgroundAudio" loop>
+    <source src="https://example.com/too-sweet.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
   <script>
     let particles = [];
     const targetDate = new Date('2025-05-12T00:00:00');
@@ -89,13 +160,13 @@
     function setup() {
       let canvas = createCanvas(windowWidth, windowHeight);
       canvas.style('display', 'block');
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 40; i++) {
         particles.push(new Particle());
       }
     }
 
     function draw() {
-      background(0, 50);
+      background(0, 30);
       let pos;
       if (touches.length > 0) {
         pos = createVector(touches[0].x, touches[0].y);
@@ -119,48 +190,105 @@
       constructor() {
         this.pos = createVector(random(width), random(height));
         this.vel = createVector(0, 0);
-        this.size = random(5, 15);
-        this.color = color(random(['#ff4040', '#00cccc', '#ffd700', '#ff69b4', '#00ff7f']));
+        this.size = random(15, 25);
+        this.color = color(random(['#ff3e6c', '#00d4d4', '#ffd700', '#ff69b4']));
+        this.angle = random(TWO_PI);
+        this.alpha = 255;
+        this.bouncePhase = random(TWO_PI);
       }
 
       update(target) {
         let acc = p5.Vector.sub(target, this.pos);
-        acc.setMag(0.1);
+        acc.setMag(0.25);
         this.vel.add(acc);
-        this.vel.limit(5);
+        this.vel.limit(6);
         this.pos.add(this.vel);
         this.pos.x = constrain(this.pos.x, 0, width);
         this.pos.y = constrain(this.pos.y, 0, height);
+        this.angle += 0.04;
+        this.bouncePhase += 0.1;
+        this.bounceOffset = sin(this.bouncePhase) * 5;
+        this.pos.y += this.bounceOffset * 0.2;
+        this.alpha = map(sin(frameCount * 0.06 + this.angle), -1, 1, 160, 255);
       }
 
       show() {
         noStroke();
-        fill(this.color);
-        ellipse(this.pos.x, this.pos.y, this.size);
+        fill(red(this.color), green(this.color), blue(this.color), this.alpha);
+        push();
+        translate(this.pos.x, this.pos.y);
+        rotate(this.angle);
+        beginShape();
+        let scale = this.size / 20;
+        for (let t = 0; t < TWO_PI; t += 0.1) {
+          let x = 16 * pow(sin(t), 3);
+          let y = 13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t);
+          vertex(x * scale, -y * scale);
+        }
+        endShape(CLOSE);
+        pop();
       }
+    }
+
+    function playAudio() {
+      const audio = document.getElementById('backgroundAudio');
+      audio.play().catch(error => console.error('Audio play error:', error));
+      document.getElementById('playButton').classList.add('playing');
+      document.getElementById('playButton').innerHTML = '<span>❤️</span> Playing...';
+      confetti({
+        particleCount: 80,
+        spread: 50,
+        origin: { y: 0.8 },
+        colors: ['#ff3e6c', '#00d4d4', '#ffd700', '#ff69b4'],
+        shapes: ['circle']
+      });
     }
 
     function updateTimer() {
-      const now = new Date();
-      const timeLeft = targetDate - now;
+      try {
+        const now = new Date();
+        const timeLeft = targetDate - now;
 
-      if (timeLeft <= 0) {
-        document.getElementById('timer').style.display = 'none';
-        document.getElementById('message').style.display = 'block';
-        return;
+        if (timeLeft <= 0) {
+          document.getElementById('timer').style.display = 'none';
+          document.getElementById('header').textContent = 'Your Special Day Is Here!';
+          document.getElementById('message').style.display = 'block';
+          document.getElementById('subtext').style.display = 'block';
+          document.getElementById('playButton').style.display = 'flex';
+          confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.5 },
+            colors: ['#ff3e6c', '#00d4d4', '#ffd700', '#ff69b4'],
+            shapes: ['circle', 'square']
+          });
+          setTimeout(() => {
+            confetti({
+              particleCount: 100,
+              spread: 60,
+              origin: { y: 0.7 },
+              colors: ['#ff3e6c', '#00d4d4', '#ffd700', '#ff69b4'],
+              shapes: ['circle']
+            });
+          }, 1000);
+          return;
+        }
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById('timer').textContent = 
+          `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      } catch (error) {
+        console.error('Timer error:', error);
+        document.getElementById('timer').textContent = 'Error loading timer';
       }
-
-      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-      document.getElementById('timer').textContent = 
-        `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
     setInterval(updateTimer, 1000);
-    updateTimer(); // Initial call to avoid blank timer
+    updateTimer();
   </script>
 </body>
 </html>
