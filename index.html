@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday Countdown</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a3d, #2e2e5c);
+      font-family: 'Arial', sans-serif;
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    #content {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      max-width: 90%;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    #timer {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    #message {
+      display: none;
+      font-size: 2.5rem;
+      font-weight: bold;
+      animation: fadeIn 2s ease-in;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #fff, 0 0 20px #ff69b4; }
+      to { text-shadow: 0 0 20px #fff, 0 0 30px #00ffff; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      #timer { font-size: 1.2rem; }
+      #message { font-size: 1.8rem; }
+    }
+    @media (min-width: 1200px) {
+      h1 { font-size: 3.5rem; }
+      #timer { font-size: 2.5rem; }
+      #message { font-size: 3.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <h1>Counting Down to Your Special Day!</h1>
+    <div id="timer"></div>
+    <div id="message">Happy Birthday, My Love! 🎉<br>You make every day brighter!</div>
+  </div>
+  <script>
+    let particles = [];
+    const targetDate = new Date('2025-05-12T00:00:00');
+
+    function setup() {
+      let canvas = createCanvas(windowWidth, windowHeight);
+      canvas.style('display', 'block');
+      for (let i = 0; i < 100; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function draw() {
+      background(0, 50);
+      let pos;
+      if (touches.length > 0) {
+        pos = createVector(touches[0].x, touches[0].y);
+      } else if (mouseIsPressed) {
+        pos = createVector(mouseX, mouseY);
+      } else {
+        pos = createVector(width / 2, height / 2);
+      }
+
+      for (let particle of particles) {
+        particle.update(pos);
+        particle.show();
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+
+    class Particle {
+      constructor() {
+        this.pos = createVector(random(width), random(height));
+        this.vel = createVector(0, 0);
+        this.size = random(5, 15);
+        this.color = color(random(['#ff4040', '#00cccc', '#ffd700', '#ff69b4', '#00ff7f']));
+      }
+
+      update(target) {
+        let acc = p5.Vector.sub(target, this.pos);
+        acc.setMag(0.1);
+        this.vel.add(acc);
+        this.vel.limit(5);
+        this.pos.add(this.vel);
+        this.pos.x = constrain(this.pos.x, 0, width);
+        this.pos.y = constrain(this.pos.y, 0, height);
+      }
+
+      show() {
+        noStroke();
+        fill(this.color);
+        ellipse(this.pos.x, this.pos.y, this.size);
+      }
+    }
+
+    function updateTimer() {
+      const now = new Date();
+      const timeLeft = targetDate - now;
+
+      if (timeLeft <= 0) {
+        document.getElementById('timer').style.display = 'none';
+        document.getElementById('message').style.display = 'block';
+        return;
+      }
+
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      document.getElementById('timer').textContent = 
+        `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer(); // Initial call to avoid blank timer
+  </script>
+</body>
+</html>
